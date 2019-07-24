@@ -1,1 +1,24 @@
 ---
+stdcfg::additional_packages::pkg_list:
+    RedHat:
+        bash-completion:
+        bc:
+        bind-utils:
+        gcc-c++:
+        git:
+        ipmitool:
+        ksh:
+        libasyncns:
+        lsof:
+        m4:
+        mailx:
+        net-tools:
+        pciutils:
+        screen:
+        tcsh:
+        time:
+        tmux:
+        traceroute:
+        tree:
+        wget:
+        zsh:
