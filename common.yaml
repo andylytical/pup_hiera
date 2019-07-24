@@ -1,5 +1,5 @@
 ---
-stdcfg::additional_packages::pkg_list:
+baseline_cfg::additional_packages::pkg_list:
     RedHat:
         bash-completion:
         bc:
