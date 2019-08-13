@@ -1,1 +1,11 @@
 ---
+chronyd::servers: [ 'pool.ntp.org' ]
+
+ntp::package_ensure: absent
+ntp::service_manage: false
+ntp::step_tickers_file: ~
+
+rsyslog::client::log_local: true
+rsyslog::client::remote_servers: false
+rsyslog::client::remote_type: 'tcp'
+rsyslog::client::preserve_fqdn: true
