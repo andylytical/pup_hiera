@@ -1,6 +1,14 @@
 ---
 chronyd::servers: [ 'pool.ntp.org' ]
 
+firewalld::default_zone: public
+firewalld::zones:
+    public:
+        target: DROP
+        #purge_rich_rules: true
+        #purge_services: true
+        #purge_ports: true
+
 ntp::package_ensure: absent
 ntp::service_manage: false
 ntp::step_tickers_file: ~
