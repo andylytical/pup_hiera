@@ -38,6 +38,83 @@ lsst_system_authnz::access::access_deny_before:
         group: all_disabled_usr
         origin: ALL
 
+lsst_system_authnz::kerberos::cfg_file_settings:
+    /etc/krb5.conf.d/domain_realm.conf: |
+        # This file is managed by Puppet.
+        [domain_realm]
+        .ncsa.illinois.edu = NCSA.EDU
+        .ncsa.uiuc.edu = NCSA.EDU
+        .ncsa.edu = NCSA.EDU
+        .cosmology.illinois.edu = NCSA.EDU
+    /etc/krb5.conf.d/kdc.conf: |
+        # This file is managed by Puppet.
+        [kdc]
+        profile = /etc/kdc.conf
+        afs_salt = NCSA.UIUC.EDU
+    /etc/krb5.conf.d/libdefaults.conf: |
+        # This file is managed by Puppet.
+        [libdefaults]
+        default_ccache_name = KEYRING:persistent:%{literal('%')}{uid}
+        default_realm = NCSA.EDU
+        forwardable = true
+        noaddresses = false
+    /etc/krb5.conf.d/realms.conf: |
+        # This file is managed by Puppet.
+        [realms]
+        NCSA.EDU = {
+        kdc = krb-lsst-ncsa1.ncsa.illinois.edu:88
+        kdc = krb-lsst-ncsa2.ncsa.illinois.edu:88
+        kdc = straw.ncsa.illinois.edu:88
+        kdc = wood.ncsa.illinois.edu:88
+        kdc = kerberos.ncsa.illinois.edu:88
+        admin_server = kadmin.ncsa.illinois.edu:749
+        default_domain = ncsa.illinois.edu
+        }
+lsst_system_authnz::kerberos::createhostuser: lsst
+lsst_system_authnz::kerberos::krb5_domain: NCSA.EDU
+
+
+lsst_system_authnz::sssd::filter_users:
+#NCSA users UID<1000
+    - acraig
+    - bw
+    - cbushell
+    - ceperley
+    - cox
+    - ferguson
+    - johns
+    - lex
+    - norman
+    - proth
+    - radha
+    - redman
+    - rkufrin
+    - scott
+    - scoyle
+    - straka
+    - svinson
+    - u10956
+    - welge
+    - wicker
+lsst_system_authnz::sssd::krb5_realm: NCSA.EDU
+lsst_system_authnz::sssd::ldap_backup_uri:
+    - ldaps://ldap1.ncsa.illinois.edu
+    - ldaps://ldap2.ncsa.illinois.edu
+    - ldaps://ldap.ncsa.illinois.edu
+lsst_system_authnz::sssd::ldap_domain: ncsa.illinois.edu
+lsst_system_authnz::sssd::ldap_group_search_base: dc=ncsa,dc=illinois,dc=edu?sub?(&(objectclass=groupOfUniqueNames)(|(cn=lsst_*)(cn=all_lsst)(cn=all_disabled_usr)(cn=grp_202)))
+lsst_system_authnz::sssd::ldap_search_base: dc=ncsa,dc=illinois,dc=edu
+lsst_system_authnz::sssd::ldap_uri:
+    - ldaps://ldap-lsst-ncsa1.ncsa.illinois.edu
+    - ldaps://ldap-lsst-ncsa2.ncsa.illinois.edu
+lsst_system_authnz::sssd::ldap_user_search_base: dc=ncsa,dc=illinois,dc=edu?sub?(&(objectclass=inetOrgPerson)(memberOf=cn=all_lsst,ou=groups,dc=ncsa,dc=illinois,dc=edu))
+lsst_system_authnz::sssd::simple_allow_groups:
+    - lsst_admin_ncsa
+lsst_system_authnz::sssd::override_homedir: /home/%u
+lsst_system_authnz::sssd::simple_deny_groups:
+    - all_disabled_usr
+    - lsst_disabled
+
 ntp::package_ensure: absent
 ntp::service_manage: false
 ntp::step_tickers_file: ~

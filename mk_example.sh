@@ -1,6 +1,6 @@
-CLUSTERS=( oracle k8s_prod k8s_test comcam auxtel lsstcam )
+CLUSTERS=( oracle k8s_prod k8s_test ccam acam lcam )
 ROLES=( default )
-SITES=( npcf ncsa tucson bdc summit )
+SITES=( npcf nts tucson bdc summit )
 
 mkyaml() {
     echo "---" >"${1}.yaml"
