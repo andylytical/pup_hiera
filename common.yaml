@@ -18,14 +18,6 @@ baseline_cfg::networkmanager::ensure: running
 
 chronyd::servers: [ 'pool.ntp.org' ]
 
-firewalld::default_zone: public
-firewalld::zones:
-    public:
-        target: DROP
-        #purge_rich_rules: true
-        #purge_services: true
-        #purge_ports: true
-
 lsst_system_authnz::access::access_allow:
     'Allow group lsst_sysadm from ALL':
         group: lsst_sysadm
@@ -74,55 +66,283 @@ lsst_system_authnz::kerberos::createhostuser: lsst
 lsst_system_authnz::kerberos::krb5_domain: NCSA.EDU
 
 
-lsst_system_authnz::sssd::filter_users:
-#NCSA users UID<1000
-    - acraig
-    - bw
-    - cbushell
-    - ceperley
-    - cox
-    - ferguson
-    - johns
-    - lex
-    - norman
-    - proth
-    - radha
-    - redman
-    - rkufrin
-    - scott
-    - scoyle
-    - straka
-    - svinson
-    - u10956
-    - welge
-    - wicker
-lsst_system_authnz::sssd::krb5_realm: NCSA.EDU
-lsst_system_authnz::sssd::ldap_backup_uri:
-    - ldaps://ldap1.ncsa.illinois.edu
-    - ldaps://ldap2.ncsa.illinois.edu
-    - ldaps://ldap.ncsa.illinois.edu
-lsst_system_authnz::sssd::ldap_domain: ncsa.illinois.edu
-lsst_system_authnz::sssd::ldap_group_search_base: dc=ncsa,dc=illinois,dc=edu?sub?(&(objectclass=groupOfUniqueNames)(|(cn=lsst_*)(cn=all_lsst)(cn=all_disabled_usr)(cn=grp_202)))
-lsst_system_authnz::sssd::ldap_search_base: dc=ncsa,dc=illinois,dc=edu
-lsst_system_authnz::sssd::ldap_uri:
-    - ldaps://ldap-lsst-ncsa1.ncsa.illinois.edu
-    - ldaps://ldap-lsst-ncsa2.ncsa.illinois.edu
-lsst_system_authnz::sssd::ldap_user_search_base: dc=ncsa,dc=illinois,dc=edu?sub?(&(objectclass=inetOrgPerson)(memberOf=cn=all_lsst,ou=groups,dc=ncsa,dc=illinois,dc=edu))
-lsst_system_authnz::sssd::simple_allow_groups:
-    - lsst_admin_ncsa
-lsst_system_authnz::sssd::override_homedir: /home/%u
-lsst_system_authnz::sssd::simple_deny_groups:
-    - all_disabled_usr
-    - lsst_disabled
+lsst_system_authnz::sssd::enablemkhomedir: true
 
 ntp::package_ensure: absent
 ntp::service_manage: false
 ntp::step_tickers_file: ~
 
+pakrat_client::default_snapshot: '2019-09-16-1568669101'
+pakrat_client::default_yumserver_url: http://lsst-repos01.ncsa.illinois.edu
+pakrat_client::repos:
+    base:
+        descr: CentOS-$releasever - Base
+        enabled: 1
+        gpgcheck: 1
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+    centosplus:
+        descr: CentOS-$releasever - Plus
+        enabled: 1
+        gpgcheck: 1
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+    epel:
+        descr: Extra Packages for Enterprise Linux 7 - $basearch
+        enabled: 1
+        gpgcheck: 1
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+    extras:
+        descr: CentOS-$releasever - Extras
+        enabled: 1
+        gpgcheck: 1
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+    puppet5:
+        descr: Puppet 5 Repository el 7 - x86_64
+        enabled: 1
+        gpgcheck: 1
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppet5-release
+    puppetlabs-pc1:
+        ensure: absent
+    puppetlabs-pc1-source:
+        ensure: absent
+    updates:
+        descr: CentOS-$releasever - Updates
+        gpgcheck: 1
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+    # Ad-hoc security_updates repo (when we don't want to move all snapshots ahead)
+    security_updates:
+        # snapshot will almost certainly differ than our current CentOS snapshot
+        snapshot: '2019-01-15-1547581639'
+        # if it is present, then we want it enabled
+        enabled: 1
+        # set to absent when we do not need to use this repo; set to present when we need it
+        ensure: absent
+        # set gpgcheck to 0 if we have built our own RPMs
+        gpgcheck: 0
+        # if we use GPG key checking, it's probably because we have only CentOS-built RPMs in the repo
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
 rsyslog::client::log_local: true
 rsyslog::client::remote_servers: false
 rsyslog::client::remote_type: 'tcp'
 rsyslog::client::preserve_fqdn: true
+
+sssd::debug_level: 0
+sssd::domains:
+    ncsa.illinois.edu:
+        access_provider: simple
+        auth_provider: krb5
+        cache_credentials: false
+        chpass_provider: krb5
+        debug_level: 0
+        enumerate: false
+        id_provider: ldap
+        krb5_auth_timeout: 3
+        krb5_lifetime: 25h
+        # TODO MAKE THIS A HIERA INTERPOLATION LOOKUP
+        krb5_realm: NCSA.EDU
+        krb5_renew_interval: 3600
+        krb5_renewable_lifetime: 7d
+        krb5_use_kdcinfo: false
+        krb5_validate: true
+        ldap_group_member: uniqueMember
+        ldap_group_search_base: dc=ncsa,dc=illinois,dc=edu?subtree?(&(objectclass=groupOfUniqueNames)(|(cn=lsst_*)(cn=all_lsst)(cn=all_disabled_usr)(cn=grp_202)))
+        ldap_schema: rfc2307bis
+        ldap_search_base: dc=ncsa,dc=illinois,dc=edu
+        # TODO MAKE THIS A HIERA INTERPOLATION LOOKUP
+        ldap_tls_cacert: /etc/pki/ca-trust/source/anchors/incommon-ca.pem
+        ldap_tls_reqcert: demand
+        ldap_user_search_base: dc=ncsa,dc=illinois,dc=edu?subtree?(&(objectclass=inetOrgPerson)(memberOf=cn=all_lsst,ou=groups,dc=ncsa,dc=illinois,dc=edu))
+        simple_allow_groups:
+            - lsst_sysadmin
+        simple_deny_groups:
+            - all_disabled_usr
+            - lsst_disabled
+
+sssd::services:
+    nss:
+        override_homedir: /home/%u
+        shell_fallback: /bin/bash
+        filter_groups:
+            - adm
+            - apache
+            - asmadmin
+            - asmdba
+            - asmoper
+            - audio
+            - avahi
+            - avahi-autoipd
+            - backupdba
+            - bin
+            - cdrom
+            - cgred
+            - chronograf
+            - chrony
+            - condor
+            - conserver
+            - daemon
+            - dba
+            - dbus
+            - dgdba
+            - dhcpd
+            - dialout
+            - dip
+            - disk
+            - docker
+            - elasticsearch
+            - floppy
+            - ftp
+            - games
+            - geoclue
+            - git
+            - gitlab-prometheus
+            - gitlab-psql
+            - gitlab-redis
+            - gitlab-www
+            - grafana
+            - graylog
+            - graylog-web
+            - hsqldb
+            - influxdb
+            - input
+            - kmdba
+            - kmem
+            - ldap
+            - levelone
+            - lock
+            - lp
+            - mail
+            - man
+            - mem
+            - mongod
+            - munge
+            - myproxy
+            - myproxyoauth
+            - mysql
+            - nagios
+            - named
+            - nfsnobody
+            - nobody
+            - nrpe
+            - nscd
+            - ntp
+            - oinstall
+            - oper
+            - oprofile
+            - pdagent
+            - polkitd
+            - postdrop
+            - postfix
+            - postgres
+            - puppet
+            - puppetdb
+            - qserv
+            - qualys
+            - rabbitmq
+            - racdba
+            - redis
+            - root
+            - rpc
+            - rpcuser
+            - saslauth
+            - screen
+            - sfcb
+            - simpleca
+            - slocate
+            - slurm
+            - sshd
+            - ssh_keys
+            - sssd
+            - stapdev
+            - stapsys
+            - stapusr
+            - suiadmin
+            - SupportAssistAdmins
+            - SupportAssistUsers
+            - sys
+            - systemd-bus-proxy
+            - systemd-journal
+            - systemd-network
+            - tape
+            - tcpdump
+            - telegraf
+            - tss
+            - tty
+            - unbound
+            - users
+            - utempter
+            - utmp
+            - video
+            - wheel
+        filter_users:
+            - activemq
+            - adm
+            - apache
+            - avahi
+            - avahi-autoipd
+            - bin
+            - chronograf
+            - chrony
+            - condor
+            - daemon
+            - dbus
+            - docker
+            - elasticsearch
+            - ftp
+            - games
+            - geoclue
+            - grafana
+            - graylog
+            - graylog-web
+            - grid
+            - halt
+            - hsqldb
+            - influxdb
+            - ldap
+            - lp
+            - mail
+            - mongod
+            - munge
+            - myproxy
+            - myproxyoauth
+            - mysql
+            - nagios
+            - nfsnobody
+            - nobody
+            - nrpe
+            - nscd
+            - nslcd
+            - ntp
+            - operator
+            - oprofile
+            - oracle
+            - pdagent
+            - polkitd
+            - postfix
+            - rabbitmq
+            - redis
+            - rsbackup
+            - qserv
+            - qualys
+            - root
+            - rpc
+            - rpcuser
+            - saslauth
+            - shutdown
+            - simpleca
+            - slurm
+            - sshd
+            - sssd
+            - suiadmin
+            - sync
+            - systemd-bus-proxy
+            - systemd-network
+            - tcpdump
+            - telegraf
+            - tomcat
+            - tss
+            - unbound
+            - wireshark
+    pam: {}
 
 sudo::configs:
     defaults:

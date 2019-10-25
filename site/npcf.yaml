@@ -1,11 +1,11 @@
 ---
-lsst_system_authnz::sssd::ldap_backup_uri:
-    - ldaps://ldap1.ncsa.illinois.edu
-    - ldaps://ldap2.ncsa.illinois.edu
-    - ldaps://ldap.ncsa.illinois.edu
-lsst_system_authnz::sssd::ldap_uri:
-    - ldaps://ldap-lsst-ncsa1.ncsa.illinois.edu
-    - ldaps://ldap-lsst-ncsa2.ncsa.illinois.edu
+#lsst_system_authnz::sssd::ldap_backup_uri:
+#    - ldaps://ldap1.ncsa.illinois.edu
+#    - ldaps://ldap2.ncsa.illinois.edu
+#    - ldaps://ldap.ncsa.illinois.edu
+#lsst_system_authnz::sssd::ldap_uri:
+#    - ldaps://ldap-lsst-ncsa1.ncsa.illinois.edu
+#    - ldaps://ldap-lsst-ncsa2.ncsa.illinois.edu
 
 unbound::log_file: '/var/log/unbound.log'
 unbound::local_domain: 'ncsa.illinois.edu'

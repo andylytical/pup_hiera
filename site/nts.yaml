@@ -1,27 +1,31 @@
 ---
-lsst_system_authnz::sssd::ldap_backup_uri:
-    - ldaps://ldap1.ncsa.illinois.edu
-    - ldaps://ldap2.ncsa.illinois.edu
-    - ldaps://ldap.ncsa.illinois.edu
-lsst_system_authnz::sssd::ldap_uri:
-    - ldaps://ldap-lsst-ncsa1.ncsa.illinois.edu
-    - ldaps://ldap-lsst-ncsa2.ncsa.illinois.edu
+sssd::domains:
+    ncsa.illinois.edu:
+        ldap_backup_uri:
+            - ldaps://ldap1.ncsa.illinois.edu
+            - ldaps://ldap2.ncsa.illinois.edu
+            - ldaps://ldap.ncsa.illinois.edu
+        ldap_uri:
+            - ldaps://ldap-lsst-ncsa1.ncsa.illinois.edu
+            - ldaps://ldap-lsst-ncsa2.ncsa.illinois.edu
+        simple_allow_groups:
+            - from_nts_yaml
 
-unbound::log_file: '/var/log/unbound.log'
-unbound::local_domain: 'ncsa.illinois.edu'
+unbound::log_file: /var/log/unbound.log
+unbound::local_domain: ncsa.illinois.edu
 unbound::search_domains:
-     - 'lsst.ncsa.edu'
-     - 'ncsa.illinois.edu'
+     - lsst.ncsa.edu
+     - ncsa.illinois.edu
 unbound::forward_servers:
      - server: '141.142.2.2'
-       comment: 'NCSA primary'
+       comment: NCSA primary
      - server: '141.142.230.144'
-       comment: 'NCSA secondary'
+       comment: NCSA secondary
 unbound::backup_dns_servers:
      - server: '141.142.2.2'
-       comment: 'NCSA primary'
+       comment: NCSA primary
      - server: '141.142.230.144' # '130.126.2.131'
-       comment: 'NCSA secondary' # 'campus DNS'
+       comment: NCSA secondary # 'campus DNS'
 unbound::reverse_overrides:
      - [192.10.in-addr.arpa., 130.126.2.131]
      - [193.10.in-addr.arpa., 130.126.2.131]
